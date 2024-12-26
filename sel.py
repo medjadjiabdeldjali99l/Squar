@@ -63,29 +63,18 @@ def scrap():
 
     l=[  i for i in l if i !="" ]
     l=[i for i in l if i != "" and not i.strip().startswith(("+", "-"))]
-    print("hada l jdid ", l)
-    # Ouvrir un fichier en mode écriture
-    with open("sortie.txt", "w") as fichier:
-        for i in range(0, len(l), 3):  # Parcourir la liste par tranches de 3 éléments
-            if i==0:
-                ligne = "".join(l[i:i+1])  # Créer une ligne avec 3 éléments séparés par des espaces
-                fichier.write(ligne + "\n\n")   
-            else:
-                ligne = "            ".join(l[i:i+3])  # Créer une ligne avec 3 éléments séparés par des espaces
-                fichier.write(ligne + "\n\n")  # Ajouter une nouvelle ligne après chaque groupe de 3 éléments
 
     headers = l[:3]  
     rows = l[3:] 
     table_data = [rows[i:i + 3] for i in range(0, len(rows), 3)]
     df = pd.DataFrame(table_data, columns=headers)
 
-    # Afficher le DataFrame
-    print(df)
+ 
 
     # Sauvegarder dans un fichier CSV
     df.to_csv("output.csv", index=False, encoding="utf-8")
 
-    print("Le fichier CSV a été créé avec succès!")
+ 
     # Fermer le navigateur
     driver.quit()
     return (l,df)
@@ -186,13 +175,12 @@ with col2:
                 
                 # Afficher les données dans un tableau interactif
                 st.dataframe(dff)
-                print("alooooooooooooooooooooooooooooooooooooooooo")
                 
                 # Télécharger les données traitées (facultatif)
 
                 header = dff.columns[0]  # Le premier élément de la première colonne
                 values = dff.iloc[0:, 0].tolist()  # Toutes les autres lignes dans la même colonne
-                print(values)
+                
                 
                 if header == devis_change_excel:
                     st.write(f"Vous avez entré le fichier dans la devise {header} et vous souhaitez le convertir en la devise {devis_change_excel} Le fichier que vous recevrez ne change pas ")
@@ -200,9 +188,7 @@ with col2:
                     (lis,df)=scrap()
                     resultat_excel_change=excel_fnc_change(header,values,lis,devis_change_excel)
 
-                    print(resultat_excel_change)
-                    print(dff)
-
+                    
                     dff[devis_change_excel]=resultat_excel_change
 
                     st.dataframe(dff)
