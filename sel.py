@@ -179,18 +179,19 @@ with col2:
         if uploaded_file is not None:
             try:
                 # Lire le fichier Excel
-                df = pd.read_excel(uploaded_file)
+                dff = pd.read_excel(uploaded_file)
                 
                 # Afficher un message de succès
                 st.success("Fichier reçu et chargé avec succès!")
                 
                 # Afficher les données dans un tableau interactif
-                st.dataframe(df)
+                st.dataframe(dff)
+                print("alooooooooooooooooooooooooooooooooooooooooo")
                 
                 # Télécharger les données traitées (facultatif)
 
-                header = df.columns[0]  # Le premier élément de la première colonne
-                values = df.iloc[0:, 0].tolist()  # Toutes les autres lignes dans la même colonne
+                header = dff.columns[0]  # Le premier élément de la première colonne
+                values = dff.iloc[0:, 0].tolist()  # Toutes les autres lignes dans la même colonne
                 print(values)
                 
                 if header == devis_change_excel:
@@ -200,18 +201,18 @@ with col2:
                     resultat_excel_change=excel_fnc_change(header,values,lis,devis_change_excel)
 
                     print(resultat_excel_change)
-                    df[devis_change_excel]=resultat_excel_change
+                    print(dff)
 
-                    st.dataframe(df)
+                    dff[devis_change_excel]=resultat_excel_change
+
+                    st.dataframe(dff)
 
                     if fichh:
                         output_file = f"{fichh}.xlsx"
-                        df.to_excel(output_file, index=False, engine='openpyxl')
+                        dff.to_excel(output_file, index=False, engine='openpyxl')
 
 
-
-
-                    csv_data = df.to_csv(index=False).encode('utf-8')
+                    csv_data = dff.to_csv(index=False).encode('utf-8')
                     st.download_button(
                         label="Télécharger les données en CSV",
                         data=csv_data,
