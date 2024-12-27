@@ -1,7 +1,8 @@
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 import streamlit as st
 import pandas as pd
 
@@ -38,14 +39,16 @@ def excel_fnc_change(header,values,lis,devis):
 
 def scrap():
 
-    # Configurer le driver pour le mode headless
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')  # Ajoute cette ligne pour activer le mode headless
-    options.add_argument('--disable-gpu')  # Désactive l'accélération GPU (utile pour certains systèmes)
-    options.add_argument('--window-size=1920x1080')  # Optionnel: définir la taille de la fenêtre
+    options = Options()
+    options.add_argument("--headless")  # Exécuter sans interface graphique
+    options.add_argument("--disable-gpu")  # Désactiver l'accélération GPU (utile pour les serveurs)
+    options.add_argument("--no-sandbox")  # Désactiver le mode sandbox
+    options.add_argument("--disable-dev-shm-usage")   # Optionnel: définir la taille de la fenêtre
 
-    # Initialiser le driver
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver = webdriver.Firefox(
+            service=FirefoxService(GeckoDriverManager().install()),
+            options=options
+        )
 
     # Accéder à la page des taux de change
     driver.get('http://www.forexalgerie.com/')
@@ -72,7 +75,7 @@ def scrap():
  
 
     # Sauvegarder dans un fichier CSV
-    df.to_csv("output.csv", index=False, encoding="utf-8")
+    df.to_csv("output1.csv", index=False, encoding="utf-8")
 
  
     # Fermer le navigateur
