@@ -1,4 +1,5 @@
 from playwright.sync_api import sync_playwright
+playwright.install()
 import streamlit as st
 import pandas as pd
 
