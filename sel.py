@@ -1,8 +1,4 @@
-from selenium import webdriver
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.by import By
-from webdriver_manager.firefox import GeckoDriverManager
+from playwright.sync_api import sync_playwright
 import streamlit as st
 import pandas as pd
 
@@ -38,50 +34,35 @@ def excel_fnc_change(header,values,lis,devis):
 
 
 def scrap():
-
-    options = Options()
-    options.add_argument("--headless")  # Exécuter sans interface graphique
-    options.add_argument("--disable-gpu")  # Désactiver l'accélération GPU (utile pour les serveurs)
-    options.add_argument("--no-sandbox")  # Désactiver le mode sandbox
-    options.add_argument("--disable-dev-shm-usage")   # Optionnel: définir la taille de la fenêtre
-
-    driver = webdriver.Firefox(
-            service=FirefoxService(GeckoDriverManager().install()),
-            options=options
-        )
-
-    # Accéder à la page des taux de change
-    driver.get('http://www.forexalgerie.com/')
-
-    # Attendre que la page se charge
-    driver.implicitly_wait(10)
-
-    # Récupérer les éléments contenant les taux de change
-    td_elements = driver.find_elements(By.TAG_NAME, "td")
-    # for element in td_elements:
-    #     print(element.text)
-
-    l=[element.text for element in td_elements]
-    # print(l)
-
-    l=[  i for i in l if i !="" ]
-    l=[i for i in l if i != "" and not i.strip().startswith(("+", "-"))]
-
-    headers = l[:3]  
-    rows = l[3:] 
-    table_data = [rows[i:i + 3] for i in range(0, len(rows), 3)]
-    df = pd.DataFrame(table_data, columns=headers)
-
- 
-
-    # Sauvegarder dans un fichier CSV
-    df.to_csv("output1.csv", index=False, encoding="utf-8")
-
- 
-    # Fermer le navigateur
-    driver.quit()
-    return (l,df)
-
+    with sync_playwright() as p:
+        browser = p.firefox.launch(headless=True)  # Utilisation de Firefox en mode headless
+        page = browser.new_page()
+        
+        # Accéder à la page des taux de change
+        page.goto('http://www.forexalgerie.com/')
+        
+        # Attendre que la page se charge complètement
+        page.wait_for_selector('td')
+        
+        # Récupérer les éléments contenant les taux de change
+        td_elements = page.query_selector_all('td')
+        
+        # Extraire le texte des éléments
+        l = [element.inner_text() for element in td_elements if element.inner_text().strip()]
+        
+        l = [i for i in l if i != "" and not i.strip().startswith(("+", "-"))]
+        headers = l[:3]
+        rows = l[3:]
+        table_data = [rows[i:i + 3] for i in range(0, len(rows), 3)]
+        df = pd.DataFrame(table_data, columns=headers)
+        
+        # Sauvegarder dans un fichier CSV
+        df.to_csv("output1.csv", index=False, encoding="utf-8")
+        
+        # Fermer le navigateur
+        browser.close()
+    
+    return l, df
 
 
 
